@@ -1,0 +1,56 @@
+import re
+import MySQLdb
+import mysql.connector
+#establishing connection to db
+mydb = mysql.connector.connect(
+  host="127.0.0.7",
+  user="root",
+  password="",
+  database="mydatabase"
+)
+f = open(r'C:\Users\HBURDE\Documents\sample.txt', encoding= 'unicode_escape') 
+info = f.readlines() 
+count=0
+set=[]
+listt=[]
+dest=""
+index=-1
+try:
+    for line in info:
+        list =line.split('|')      
+        stt=""
+        if(count==0):
+            count=count+1
+            for value in range(len(list)):
+                if value > 1:
+                    dest=dest+str(list[value])+","
+                if list[value].lower().__eq__("country"):
+                    index=value
+        else:
+            for value in range(len(list)):
+                if value > 1:
+                    stt=stt+str(list[value])+","
+            country=""
+            stt=stt[:-1]
+            if index!=-1:
+                country=list[index]
+                
+            if(country in set): #checking if table is already present in the set i.e. already created if yes then insert values in the tables or else create table first then insert the value
+                continue
+             sql3 = 'INSERT INTO Table_{} VALUES({})'.format(country, stt)
+             c.execute(sql3)
+            else:
+                set.append(country)
+                c = mydb.cursor()
+                sql1 = 'CREATE TABLE Table_{} (Name VARCHAR(255) PRIMARY KEY, Cust_I VARCHAR(18), Open_Dt DATE(8), Consul_Dt DATE(8), VAC_ID CHAR(5), DR_Name CHAR(255), Stae CHAR(5), Country CHAR(5), DOB DATE(8), FLAG CHAR(1))'.format(set)
+                sql2 = 'INSERT INTO Table_{} VALUES({})'.format(country, stt)      
+                c.execute(sql1)
+            
+except:
+    mydb.rollback()
+
+mydb.commit()
+mydb.close()          
+
+
+        
